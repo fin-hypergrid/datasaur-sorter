@@ -25,7 +25,7 @@ var DataSourceSorter = DataSourceIndexed.extend('DataSourceSorter', {
      * @param {number} [direction=1] - One of `-1`, `0`, or `1`.
      * @memberOf DataSourceSorter#
      */
-    sortOn: function(columnIndex, direction) {
+    sortOn: function(columnIndex, direction, type) {
         if (direction === 0) {
             this.clearIndex();
             return;
@@ -40,8 +40,8 @@ var DataSourceSorter = DataSourceIndexed.extend('DataSourceSorter', {
             columnSchema = dataSource.schema[columnIndex],
             columnName = columnSchema && columnSchema.name,
             calculator = columnSchema && columnSchema.calculator,
-            type = columnSchema && columnSchema.type || typeof getValue(0),
-            comparatorCouplet = comparatorCouplets[type] || comparatorCouplets.string, // string when type unknown
+            comparatorType = type || columnSchema && columnSchema.type || typeof getValue(0),
+            comparatorCouplet = comparatorCouplets[comparatorType] || comparatorCouplets.string, // string when type unknown
             comparator = comparatorCouplet[direction],
             descending = (direction === -1),
             stableComparator = stabilize.bind(this, comparator, descending);
@@ -78,7 +78,6 @@ var DataSourceSorter = DataSourceIndexed.extend('DataSourceSorter', {
  * @extends DataSourceIndexed
  */
 var DataSourceSorterComposite = DataSourceIndexed.extend('DataSourceSorterComposite', {
-
     /**
      * @memberOf DataSourceSorterComposite#
      */
@@ -116,14 +115,12 @@ var DataSourceSorterComposite = DataSourceIndexed.extend('DataSourceSorterCompos
      * @memberOf DataSourceSorterComposite#
      */
     apply: function() {
-        var each;
-        if (this.controller.length) {
-            this.controller.forEach(function(sortSpec) {
-                each = new DataSourceSorter(each);
-                each.sortOn(sortSpec.columnIndex, sortSpec.direction, sortSpec.type);
-            });
-            this.last = each;
-        }
+        var each = this.dataSource;
+        this.controller.forEach(function(sortSpec) {
+            each = new DataSourceSorter(each);
+            each.sortOn(sortSpec.columnIndex, sortSpec.direction, sortSpec.type);
+        });
+        this.last = each;
     },
 
     /**
@@ -175,19 +172,15 @@ DataSourceSorterComposite.addComparator = function(name, ascendingComparator, de
  * @param {Array} arr2
  * @returns {function}
  */
-function stabilize(comparator, descending, arr1, arr2) {
-    var x = arr1[0],
-        y = arr2[0],
-        result;
+function stabilize(comparator, descending, a, b) {
+    var result;
 
-    if (x === y) {
-        x = descending ? arr2[1] : arr1[1];
-        y = descending ? arr1[1] : arr2[1];
-        result = comparator(x, y);
-    } else if (y == null) {
-        result = -1;
-    } else if (x == null) {
-        result = +1;
+    if (a[0] !== b[0]) {
+        result = comparator(a[0], b[0]);
+    } else if (descending) {
+        result = b[1] - a[1];
+    } else {
+        result = a[1] - b[1];
     }
 
     return result;
