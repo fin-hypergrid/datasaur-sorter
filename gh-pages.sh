@@ -24,8 +24,7 @@ git rm -rf -q .
 # cp -R ../../$repo/doc/* . >/dev/null
 
 # copy $repo/build to the cdn/build directory
-mkdir ./build
-cp ../../$repo/build/* ./build >/dev/null
+cp -R ../../$repo/build . >/dev/null
 
 # send it up
 git add . >/dev/null
