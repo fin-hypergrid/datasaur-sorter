@@ -90,7 +90,9 @@ var DataSourceSorterComposite = DataSourceIndexed.extend('DataSourceSorterCompos
     },
 
     newController: function() {
-        return [];
+        return {
+            sorts: []
+        };
     },
 
     /**
@@ -108,7 +110,7 @@ var DataSourceSorterComposite = DataSourceIndexed.extend('DataSourceSorterCompos
      * @param direction
      */
     sortOn: function(columnIndex, direction) {
-        this.controller.push({ columnIndex: columnIndex, direction: direction });
+        this.controller.sorts.push({ columnIndex: columnIndex, direction: direction });
     },
 
     /**
@@ -116,9 +118,9 @@ var DataSourceSorterComposite = DataSourceIndexed.extend('DataSourceSorterCompos
      */
     apply: function() {
         var each = this.dataSource;
-        this.controller.forEach(function(sortSpec) {
+        this.controller.sorts.forEach(function(sort) {
             each = new DataSourceSorter(each);
-            each.sortOn(sortSpec.columnIndex, sortSpec.direction, sortSpec.type);
+            each.sortOn(sort.columnIndex, sort.direction, sort.type);
         });
         this.last = each;
     },
@@ -127,7 +129,7 @@ var DataSourceSorterComposite = DataSourceIndexed.extend('DataSourceSorterCompos
      * @memberOf DataSourceSorterComposite#
      */
     clearSorts: function() {
-        this.controller.length = 0;
+        this.controller.sorts.length = 0;
         this.last = this.dataSource;
     },
 
