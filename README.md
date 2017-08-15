@@ -1,3 +1,1 @@
-# datasaur-sorter
-
-Datasaur multi-column sorter module.
+Multi-column sort _Datasaur_ module
