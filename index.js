@@ -89,10 +89,10 @@ var DataSourceSorterComposite = DataSourceIndexed.extend('DataSourceSorterCompos
         this.last = this.dataSource;
 
         this.sorts = [];
+    },
 
-        this.subscribe('set-sorts', function(sorts) {
-            this.sorts = sorts;
-        });
+    setSorts: function(sorts) {
+        this.sorts = sorts;
     },
 
     /**
